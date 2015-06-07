@@ -79,14 +79,12 @@
     <!-- AH Formatter allows empty fo:static-content. -->
     <define name="fo_static-content.model">
       <interleave>
-        <interleave>
-          <zeroOrMore>
+        <zeroOrMore>
+          <choice>
             <ref name="block.fo.list"/>
-          </zeroOrMore>
-          <zeroOrMore>
             <ref name="neutral.fo.list"/>
-          </zeroOrMore>
-        </interleave>
+          </choice>
+        </zeroOrMore>
         <zeroOrMore>
           <ref name="point.fo.list"/>
         </zeroOrMore>
@@ -98,14 +96,12 @@
         <ref name="fo_marker"/>
       </zeroOrMore>
       <interleave>
-        <interleave>
-          <zeroOrMore>
+        <zeroOrMore>
+          <choice>
             <ref name="block.fo.list"/>
-          </zeroOrMore>
-          <zeroOrMore>
             <ref name="neutral.fo.list"/>
-          </zeroOrMore>
-        </interleave>
+          </choice>
+        </zeroOrMore>
         <zeroOrMore>
           <ref name="point.fo.list"/>
         </zeroOrMore>
@@ -117,37 +113,105 @@
         <ref name="fo_marker"/>
       </zeroOrMore>
       <interleave>
-        <interleave>
-          <zeroOrMore>
+        <zeroOrMore>
+          <choice>
             <ref name="block.fo.list"/>
-          </zeroOrMore>
-          <zeroOrMore>
             <ref name="neutral.fo.list"/>
-          </zeroOrMore>
-        </interleave>
+          </choice>
+        </zeroOrMore>
         <zeroOrMore>
           <ref name="point.fo.list"/>
         </zeroOrMore>
       </interleave>
     </define>
-    <!-- AH Formatter allows fo:table-cell omit block FOs. -->
-    <define name="fo_table-cell.model">
+    <!-- AH Formatter allows empty fo:list-item. -->
+    <define name="fo_list-item.model">
       <zeroOrMore>
         <ref name="fo_marker"/>
       </zeroOrMore>
       <interleave>
-        <interleave>
-          <zeroOrMore>
-            <ref name="block.fo.list"/>
-          </zeroOrMore>
-          <zeroOrMore>
-            <ref name="neutral.fo.list"/>
-          </zeroOrMore>
-        </interleave>
+        <optional>
+          <ref name="fo_list-item-label"/>
+          <ref name="fo_list-item-body"/>
+        </optional>
         <zeroOrMore>
           <ref name="point.fo.list"/>
         </zeroOrMore>
       </interleave>
+    </define>
+    <!-- AH Formatter allows fo:list-item-label omit block FOs. -->
+    <define name="fo_list-item-label.model">
+      <zeroOrMore>
+        <ref name="fo_marker"/>
+      </zeroOrMore>
+      <interleave>
+        <zeroOrMore>
+          <choice>
+            <ref name="block.fo.list"/>
+            <ref name="neutral.fo.list"/>
+          </choice>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="point.fo.list"/>
+        </zeroOrMore>
+      </interleave>
+    </define>
+    <!--
+      AH Formatter allows fo:table-cell to omit block FOs.
+      axf:table-cell-repeated-marker used when cell repeats.
+    -->
+    <define name="fo_table-cell.model">
+      <zeroOrMore>
+        <ref name="fo_marker"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="axf_table-cell-repeated-marker"/>
+      </optional>
+      <interleave>
+        <zeroOrMore>
+          <choice>
+            <ref name="block.fo.list"/>
+            <ref name="neutral.fo.list"/>
+          </choice>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="point.fo.list"/>
+        </zeroOrMore>
+      </interleave>
+    </define>
+    <!--
+      For fo:instream-foreign-object
+      Exclude axf:* elements and attributes from counting as 'non-xsl'.
+    -->
+    <define name="non-xsl">
+      <zeroOrMore>
+        <attribute>
+          <anyName>
+            <except>
+              <nsName ns=""/>
+              <nsName/>
+              <nsName ns="http://www.w3.org/XML/1998/namespace"/>
+            </except>
+          </anyName>
+        </attribute>
+      </zeroOrMore>
+      <zeroOrMore>
+        <element>
+          <anyName>
+            <except>
+              <nsName ns=""/>
+              <nsName ns="http://www.w3.org/1999/XSL/Format"/>
+              <nsName/>
+            </except>
+          </anyName>
+          <zeroOrMore>
+            <attribute>
+              <anyName/>
+            </attribute>
+          </zeroOrMore>
+          <ref name="anything"/>
+        </element>
+      </zeroOrMore>
     </define>
     <!--
       
@@ -198,6 +262,44 @@
     </element>
   </define>
   <!--
+    <axf:footnote-number/>
+    http://www.antennahouse.com/product/ahf60/docs/ahf-ext.html#axf.footnote-number
+  -->
+  <define name="axf_footnote-number">
+    <element name="axf:footnote-number">
+      <a:documentation>Generates a footnote number</a:documentation>
+      <ref name="id"/>
+      <empty/>
+    </element>
+  </define>
+  <!--
+    <axf:footnote-number-citation/>
+    http://www.antennahouse.com/product/ahf60/docs/ahf-ext.html#axf.footnote-number-citation
+  -->
+  <define name="axf_footnote-number-citation">
+    <element name="axf:footnote-number-citation">
+      <a:documentation>Cites a footnote number</a:documentation>
+      <attribute name="ref-id"/>
+      <empty/>
+    </element>
+  </define>
+  <!--
+    <axf:table-cell-repeated-marker>
+    http://www.antennahouse.com/product/ahf60/docs/ahf-ext.html#axf.table-cell-repeated-marker
+  -->
+  <define name="axf_table-cell-repeated-marker">
+    <element name="axf:table-cell-repeated-marker">
+      <a:documentation>Contents used when axf:repeat-cell-content-at-break="true"</a:documentation>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="inline.fo.list"/>
+          <ref name="block.fo.list"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!--
     
     Antenna House extensions to patterns in included modules.
     
@@ -207,6 +309,12 @@
     Extensions to FO models
     
   -->
+  <define name="inline.fo.list" combine="choice">
+    <choice>
+      <ref name="axf_footnote-number"/>
+      <ref name="axf_footnote-number-citation"/>
+    </choice>
+  </define>
   <!--
     
     Extensions to FO attlists
@@ -237,10 +345,38 @@
   </define>
   <define name="fo_block.attlist" combine="interleave">
     <ref name="axf_destination-type"/>
+    <ref name="height"/>
+    <ref name="max-height"/>
+    <ref name="max-width"/>
+    <ref name="min-height"/>
+    <ref name="min-width"/>
+    <ref name="text-decoration"/>
     <ref name="width"/>
+    <ref name="axf.block.attlist"/>
   </define>
   <define name="fo_block-container.attlist" combine="interleave">
+    <ref name="axf_column-count"/>
+    <ref name="axf_column-gap"/>
     <ref name="axf_destination-type"/>
+    <ref name="axf.block.attlist"/>
+  </define>
+  <define name="fo_footnote.attlist" combine="interleave">
+    <ref name="space-before"/>
+  </define>
+  <define name="fo_list-block.attlist" combine="interleave">
+    <ref name="axf.block.attlist"/>
+  </define>
+  <define name="fo_table.attlist" combine="interleave">
+    <ref name="axf.block.attlist"/>
+  </define>
+  <define name="fo_table-and-caption.attlist" combine="interleave">
+    <ref name="axf.block.attlist"/>
+  </define>
+  <define name="fo_table-cell.attlist" combine="interleave">
+    <ref name="axf_repeat-cell-content-at-break"/>
+  </define>
+  <define name="fo_table-column.attlist" combine="interleave">
+    <ref name="id"/>
   </define>
   <!--
     
@@ -259,6 +395,19 @@
     Antenna House extension properties
     
   -->
+  <!--
+    List of extension properties common to all block-level formatting
+    objects
+  -->
+  <define name="axf.block.attlist">
+    <ref name="axf_outline-expand"/>
+    <ref name="axf_outline-group"/>
+    <ref name="axf_outline-level"/>
+    <ref name="axf_outline-title"/>
+    <ref name="axf_outline-color"/>
+    <ref name="axf_outline-font-style"/>
+    <ref name="axf_outline-font-weight"/>
+  </define>
   <!--
     @axf:action-type
     
@@ -368,6 +517,30 @@
     </optional>
   </define>
   <!--
+    @axf:column-count
+    
+    http://www.antennahouse.com/product/ahf60/docs/ahf-ext.html#axf.column-count
+  -->
+  <define name="axf_column-count">
+    <optional>
+      <attribute name="axf:column-count">
+        <a:documentation>The number of columns: &lt;number&gt;</a:documentation>
+      </attribute>
+    </optional>
+  </define>
+  <!--
+    @axf:column-gap
+    
+    http://www.antennahouse.com/product/ahf60/docs/ahf-ext.html#axf.column-gap
+  -->
+  <define name="axf_column-gap">
+    <optional>
+      <attribute name="axf:column-gap">
+        <a:documentation>The gap between columns: &lt;length&gt; | &lt;percentage&gt;</a:documentation>
+      </attribute>
+    </optional>
+  </define>
+  <!--
     @axf:crop-area-visibility
     
     http://www.antennahouse.com/product/ahf60/docs/ahf-ext.html#axf.crop-area-visibility
@@ -440,6 +613,102 @@
     </optional>
   </define>
   <!--
+    @axf:outline-expand
+    
+    http://www.antennahouse.com/product/ahf60/docs/ahf-ext.html#axf.outline-expand
+  -->
+  <define name="axf_outline-expand">
+    <optional>
+      <attribute name="axf:outline-expand">
+        <a:documentation>Whether to display the lower hierarchy of bookmark items or not</a:documentation>
+        <choice>
+          <value>true</value>
+          <value>false</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <!--
+    @axf:outline-group
+    
+    http://www.antennahouse.com/product/ahf60/docs/ahf-ext.html#axf.outline-group
+  -->
+  <define name="axf_outline-group">
+    <optional>
+      <attribute name="axf:outline-group">
+        <a:documentation>Name of the output group: &lt;string&gt;</a:documentation>
+      </attribute>
+    </optional>
+  </define>
+  <!--
+    @axf:outline-level
+    
+    http://www.antennahouse.com/product/ahf60/docs/ahf-ext.html#axf.outline-level
+  -->
+  <define name="axf_outline-level">
+    <optional>
+      <attribute name="axf:outline-level">
+        <a:documentation>The hierarchy level of bookmark items: &lt;number&gt;</a:documentation>
+      </attribute>
+    </optional>
+  </define>
+  <!--
+    @axf:outline-title
+    
+    http://www.antennahouse.com/product/ahf60/docs/ahf-ext.html#axf.outline-title
+  -->
+  <define name="axf_outline-title">
+    <optional>
+      <attribute name="axf:outline-title">
+        <a:documentation>String which appears as a title of bookmark: &lt;string&gt;</a:documentation>
+      </attribute>
+    </optional>
+  </define>
+  <!--
+    @axf:outline-color
+    
+    http://www.antennahouse.com/product/ahf60/docs/ahf-ext.html#axf.outline-color
+  -->
+  <define name="axf_outline-color">
+    <optional>
+      <attribute name="axf:outline-color">
+        <a:documentation>Color which appears as a title of bookmark</a:documentation>
+      </attribute>
+    </optional>
+  </define>
+  <!--
+    @axf:outline-font-style
+    
+    http://www.antennahouse.com/product/ahf60/docs/ahf-ext.html#axf_outline-font-style
+  -->
+  <define name="axf_outline-font-style">
+    <optional>
+      <attribute name="axf:outline-font-style">
+        <a:documentation>Font style which appears as a title of bookmark</a:documentation>
+        <choice>
+          <value>normal</value>
+          <value>italic</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <!--
+    @axf:outline-font-weight
+    
+    http://www.antennahouse.com/product/ahf60/docs/ahf-ext.html#axf:outline-font-weight
+  -->
+  <define name="axf_outline-font-weight">
+    <optional>
+      <attribute name="axf:outline-font-weight">
+        <a:documentation>Font weight which appears as a title of bookmark</a:documentation>
+        <choice>
+          <value>normal</value>
+          <value>bold</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <!--
     @axf:printer-marks
     
     http://www.antennahouse.com/product/ahf60/docs/ahf-ext.html#axf.printer-marks
@@ -483,7 +752,7 @@
   <define name="axf_printer-marks-line-width">
     <optional>
       <attribute name="axf:printer-marks-line-width">
-        <a:documentation/>
+        <a:documentation>Line width of printer marks</a:documentation>
       </attribute>
     </optional>
   </define>
@@ -508,6 +777,22 @@
     <optional>
       <attribute name="axf:printer-marks-spine-width">
         <a:documentation>Spine width of the facing page: &lt;length&gt;</a:documentation>
+      </attribute>
+    </optional>
+  </define>
+  <!--
+    @axf:repeat-cell-content-at-break
+    
+    http://www.antennahouse.com/product/ahf60/docs/ahf-ext.html#axf.repeat-cell-content-at-break
+  -->
+  <define name="axf_repeat-cell-content-at-break">
+    <optional>
+      <attribute name="axf:repeat-cell-content-at-break">
+        <a:documentation>Whether to copy the contents of a cell when a cell breaks</a:documentation>
+        <choice>
+          <value>true</value>
+          <value>false</value>
+        </choice>
       </attribute>
     </optional>
   </define>
